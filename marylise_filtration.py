@@ -14,10 +14,13 @@ for file in files:
     index = df.index.to_numpy()
     counts = (df[df.columns[0]]/time).to_numpy()
 
-    # METTRE DROITE D'ÉTALONNAGE
-    energie_moy = np.average(index, weights=counts)
+    energies = (0.017905141963904726*index) - 0.35239275479242
+    
+    energie_moy = np.average(energies, weights=counts)
+    print(energie_moy)
+    
     # COMMENT TROUVER ÉNERGIE MAX
 
 
-    plt.plot(index, counts)
-    plt.show()
+    # plt.plot(energies, counts)
+    # plt.show()
