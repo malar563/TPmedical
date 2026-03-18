@@ -39,6 +39,8 @@ def courant_ou_tension(param_interet="tension"):
         counts_s = counts/time
 
         energies = (0.017905141963904726*index) - 0.35239275479242
+
+        diff_energies = np.mean(np.diff(energies))
         
         # plt.plot(energies, counts)
         # plt.show()
@@ -77,4 +79,4 @@ def courant_ou_tension(param_interet="tension"):
         plt.plot(courants, energies_max, 'bo')
         plt.show()
 
-courant_ou_tension("courant")
+courant_ou_tension("tension")
