@@ -11,6 +11,8 @@ from scipy.optimize import curve_fit
 # Modèle gaussienne + fond linéaire
 def gaussian_with_background(x, A, mu, sigma, m, c):
     return A * np.exp(-(x - mu)**2 / (2 * sigma**2)) + m*x + c
+def gaussian_without_background(x, A, mu, sigma):
+    return A * np.exp(-(x - mu)**2 / (2 * sigma**2))
 
 def fit_peak(energies, counts, peak_center, window=0.5, plot=True):
     """
@@ -61,13 +63,10 @@ def fit_peak(energies, counts, peak_center, window=0.5, plot=True):
         plt.legend()
         plt.show()
 
-    return mu, mu_err, sigma, sigma_err, N_pic
+    return mu, mu_err, sigma, sigma_err, N_pic, A
 
-folder = f"spectres_bruts/fluorescence_csv/alliages"
-# files = os.listdir(folder)
 
 def pre_process(folder, file_name):
-
     df = pd.read_csv(os.path.join(folder, file_name))
     time = float(df.columns[0]) 
 
@@ -76,53 +75,26 @@ def pre_process(folder, file_name):
     counts_s = counts/time
 
     energies = (0.009685321409623682*index) - 0.059015714868320815
-
     diff_energies = np.mean(np.diff(energies))
-    
     # plt.plot(energies, counts)
     # plt.show()
 
     return energies, counts_s
 
-# Cu, Zn, Sn
-energies, counts_1CAD = pre_process(folder, "1$_SIPIN_60s_G110.29_150mua_40kV.csv")
+def sum_up_sigma(energies, counts, mean, std, n=2):
+    # intervalle sur l'axe des ÉNERGIES
+    lower_bound = mean - n * std
+    upper_bound = mean + n * std
+
+    # crée le masque basé sur l'axe des ÉNERGIES
+    mask = (energies >= lower_bound) & (energies <= upper_bound)
+
+    return np.sum(counts[mask])
 
 
-# Ni, Cu, Fe?
-energies, counts_25c = pre_process(folder, "25c_SIPIN_60s_G110.29_150mua_40kV.csv")
-
-# Fe, Cu, 
-energies, counts_1c = pre_process(folder, "1c_SIPIN_60s_G110.29_150mua_40kV.csv")
-
-energies, counts_cle = pre_process(folder, "cle_SIPIN_60s_G110.29_150mua_40kV.csv")
 
 
-files = os.listdir(folder)
-for file in files:
-    energies, counts = pre_process(folder, file)
-    try:    
-        mu_Cu1, mu_err_Cu, sigma_Cu1, sigma_err_Cu1, _ = fit_peak(energies, counts, peak_center=8.05, window=0.5) 
-        mu_Cu2, mu_err_Cu2, sigma_Cu2, sigma_err_Cu2, _ = fit_peak(energies, counts, peak_center=8.91, window=0.5)
-        mu_Fe1, mu_err_Fe, sigma_Fe1, sigma_err_Fe1, _ = fit_peak(energies, counts, peak_center=6.4, window=0.5) 
-        mu_Fe2, mu_err_Fe2, sigma_Fe2, sigma_err_Fe2, _ = fit_peak(energies, counts, peak_center=7.06, window=0.3)
-    except:
-        pass
-
-# energies, counts_25c = pre_process(folder, "25c_SIPIN_60s_G110.29_150mua_40kV.csv")
-
-    
-plt.plot(energies, counts_1CAD)
-plt.plot(energies, counts_25c)
-plt.plot(energies, counts_1c)
-plt.plot(energies, counts_cle)
-plt.show()
-
-mu_Cu1, mu_err_Cu, sigma_Cu1, sigma_err_Cu1, _ = fit_peak(energies, counts_1CAD, peak_center=8.05, window=0.5) 
-mu_Cu2, mu_err_Cu2, sigma_Cu2, sigma_err_Cu2, _ = fit_peak(energies, counts_1CAD, peak_center=8.91, window=0.5)
-mu_Fe1, mu_err_Fe, sigma_Fe1, sigma_err_Fe1, _ = fit_peak(energies, counts_1CAD, peak_center=6.4, window=0.5) 
-mu_Fe2, mu_err_Fe2, sigma_Fe2, sigma_err_Fe2, _ = fit_peak(energies, counts_1CAD, peak_center=7.06, window=0.3)
-
-
+"""ANALYSE DES SPECTRES PURS"""
 
 folder = f"spectres_bruts/fluorescence_csv/spectres_purs"
 files = os.listdir(folder)
@@ -141,25 +113,96 @@ for file in files:
 
     diff_energies = np.mean(np.diff(energies))
     
-    plt.plot(energies, counts)
-    plt.show()
+    # plt.plot(energies, counts)
+    # plt.show()
 
     if element == "Ag":
-        mu_Ag1, mu_err_Ag, sigma_Ag1, sigma_err_Ag1, _ = fit_peak(energies, counts_s, peak_center=22.16, window=0.5) 
-        mu_Ag2, mu_err_CAg2, sigma_Ag2, sigma_err_Ag2, _ = fit_peak(energies, counts_s, peak_center=24.94, window=0.5)
+        mu_Ag1, mu_err_Ag, sigma_Ag1, sigma_err_Ag1, _, A = fit_peak(energies, counts_s, peak_center=22.16, window=0.5, plot=False) 
+        mu_Ag2, mu_err_CAg2, sigma_Ag2, sigma_err_Ag2, _, A = fit_peak(energies, counts_s, peak_center=24.94, window=0.5, plot=False)
     if element == "Al":
-        mu_Al1, mu_err_Al1, sigma_Al1, sigma_err_Al1, _ = fit_peak(energies, counts_s, peak_center=1.49, window=0.5) 
+        mu_Al1, mu_err_Al1, sigma_Al1, sigma_err_Al1, _, A = fit_peak(energies, counts_s, peak_center=1.49, window=0.5, plot=False) 
     if element == "Cu":
-        mu_Cu1, mu_err_Cu, sigma_Cu1, sigma_err_Cu1, _ = fit_peak(energies, counts_s, peak_center=8.05, window=0.5) 
-        mu_Cu2, mu_err_Cu2, sigma_Cu2, sigma_err_Cu2, _ = fit_peak(energies, counts_s, peak_center=8.91, window=0.5)
+        mu_Cu1, mu_err_Cu, sigma_Cu1, sigma_err_Cu1, _, A1 = fit_peak(energies, counts_s, peak_center=8.05, window=0.5, plot=True)
+        total_counts_REF_Cu1 = sum_up_sigma(energies, gaussian_without_background(energies, A1, mu_Cu1, sigma_Cu1), mu_Cu1, sigma_Cu1) 
+        mu_Cu2, mu_err_Cu2, sigma_Cu2, sigma_err_Cu2, _, A2 = fit_peak(energies, counts_s, peak_center=8.91, window=0.5, plot=True)
+        total_counts_REF_Cu2 = sum_up_sigma(energies, gaussian_without_background(energies, A2, mu_Cu2, sigma_Cu2), mu_Cu2, sigma_Cu2) 
     if element == "Fe":
-        mu_Fe1, mu_err_Fe, sigma_Fe1, sigma_err_Fe1, _ = fit_peak(energies, counts_s, peak_center=6.4, window=0.5) 
-        mu_Fe2, mu_err_Fe2, sigma_Fe2, sigma_err_Fe2, _ = fit_peak(energies, counts_s, peak_center=7.06, window=0.3)
+        mu_Fe1, mu_err_Fe, sigma_Fe1, sigma_err_Fe1, _, A1 = fit_peak(energies, counts_s, peak_center=6.4, window=0.5, plot=False)
+        total_counts_REF_Fe1 = sum_up_sigma(energies, gaussian_without_background(energies, A1, mu_Fe1, sigma_Fe1), mu_Fe1, sigma_Fe1) 
+        mu_Fe2, mu_err_Fe2, sigma_Fe2, sigma_err_Fe2, _, A2 = fit_peak(energies, counts_s, peak_center=7.06, window=0.3, plot=False)
+        total_counts_REF_Fe2 = sum_up_sigma(energies, gaussian_without_background(energies, A2, mu_Fe2, sigma_Fe2), mu_Fe2, sigma_Fe2)
     if element == "Pb":
-        mu_Pb1, mu_err_Pb, sigma_Pb1, sigma_err_Pb1, _ = fit_peak(energies, counts_s, peak_center=9.18, window=0.5) 
-        mu_Pb2, mu_err_Pb2, sigma_Pb2, sigma_err_Pb2, _ = fit_peak(energies, counts_s, peak_center=10.55, window=0.5)
-        mu_Pb3, mu_err_Pb3, sigma_Pb3, sigma_err_Pb3, _ = fit_peak(energies, counts_s, peak_center=12.61, window=0.5)
-        mu_Pb4, mu_err_Pb4, sigma_Pb4, sigma_err_Pb4, _ = fit_peak(energies, counts_s, peak_center=14.76, window=0.5)
+        mu_Pb1, mu_err_Pb, sigma_Pb1, sigma_err_Pb1, _, A = fit_peak(energies, counts_s, peak_center=9.18, window=0.5, plot=False) 
+        mu_Pb2, mu_err_Pb2, sigma_Pb2, sigma_err_Pb2, _, A = fit_peak(energies, counts_s, peak_center=10.55, window=0.5, plot=False)
+        mu_Pb3, mu_err_Pb3, sigma_Pb3, sigma_err_Pb3, _, A = fit_peak(energies, counts_s, peak_center=12.61, window=0.5, plot=False)
+        mu_Pb4, mu_err_Pb4, sigma_Pb4, sigma_err_Pb4, _, A = fit_peak(energies, counts_s, peak_center=14.76, window=0.5, plot=False)
+
+
+
+
+folder = f"spectres_bruts/fluorescence_csv/alliages"
+# files = os.listdir(folder)
+
+
+
+files = os.listdir(folder)
+for file in files:
+    energies, counts = pre_process(folder, file)
+    try:    
+        mu_Cu1, mu_err_Cu, sigma_Cu1, sigma_err_Cu1, _, A1 = fit_peak(energies, counts, peak_center=8.05, window=0.4)
+        plt.plot(energies, gaussian_without_background(energies, A1, mu_Cu1, sigma_Cu1))
+        plt.plot(energies, counts)
+        plt.show()
+        total_counts_Cu1 = sum_up_sigma(energies, gaussian_without_background(energies, A1, mu_Cu1, sigma_Cu1), mu_Cu1, sigma_Cu1)
+        ratio_Cu1 = total_counts_Cu1/total_counts_REF_Cu1
+        print(total_counts_Cu1, total_counts_REF_Cu1)
+        print(ratio_Cu1)
+
+        mu_Cu2, mu_err_Cu2, sigma_Cu2, sigma_err_Cu2, _, A2 = fit_peak(energies, counts, peak_center=8.91, window=0.3)#0.5 pour cle
+        plt.plot(energies, gaussian_without_background(energies, A2, mu_Cu2, sigma_Cu2))
+        plt.plot(energies, counts)
+        plt.show()
+        total_counts_Cu2 = sum_up_sigma(energies, gaussian_without_background(energies, A2, mu_Cu2, sigma_Cu2), mu_Cu2, sigma_Cu2)
+        ratio_Cu2 = total_counts_Cu2/total_counts_REF_Cu2
+        print(ratio_Cu2)
+
+        mu_Fe1, mu_err_Fe, sigma_Fe1, sigma_err_Fe1, _, A3 = fit_peak(energies, counts, peak_center=6.4, window=0.5)
+        plt.plot(energies, gaussian_without_background(energies, A3, mu_Fe1, sigma_Fe1))
+        plt.plot(energies, counts)
+        plt.show()
+        total_counts_Fe1 = sum_up_sigma(energies, gaussian_without_background(energies, A3, mu_Fe1, sigma_Fe1), mu_Fe1, sigma_Fe1)
+        ratio_Fe1 = total_counts_Fe1/total_counts_REF_Fe1
+        print(ratio_Fe1)
+
+        mu_Fe2, mu_err_Fe2, sigma_Fe2, sigma_err_Fe2, _, A4 = fit_peak(energies, counts, peak_center=7.06, window=0.3)
+        plt.plot(energies, gaussian_without_background(energies, A4, mu_Fe2, sigma_Fe2))
+        plt.plot(energies, counts)
+        plt.show()
+        total_counts_Fe2 = sum_up_sigma(energies, gaussian_without_background(energies, A4, mu_Fe2, sigma_Fe2), mu_Fe2, sigma_Fe2)
+        ratio_Fe2 = total_counts_Fe2/total_counts_REF_Fe2
+        print(ratio_Fe2)
+
+    except:
+        pass
+
+
+
+
+
+# Cu, Zn, Sn
+energies, counts_1CAD = pre_process(folder, "1$_SIPIN_60s_G110.29_150mua_40kV.csv")
+# Ni, Cu, Fe? : PIC DE 8.05 DU Cu MÉLANGÉ AVEC CELUI À 8.26 DU Ni
+energies, counts_25c = pre_process(folder, "25c_SIPIN_60s_G110.29_150mua_40kV.csv")
+# Fe, Cu, 
+energies, counts_1c = pre_process(folder, "1c_SIPIN_60s_G110.29_150mua_40kV.csv")
+energies, counts_cle = pre_process(folder, "cle_SIPIN_60s_G110.29_150mua_40kV.csv")
+
+# plt.plot(energies, counts_1CAD)
+# plt.plot(energies, counts_25c)
+# plt.plot(energies, counts_1c)
+# plt.plot(energies, counts_cle)
+# plt.show()
+
 
 
 
