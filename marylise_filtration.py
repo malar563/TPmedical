@@ -163,10 +163,10 @@ def courant_ou_tension(param_interet="tension"):
         erreur_test = np.array(energies_moy) * 0.05
         erreur_test = i_energies_moy + (diff_energies*np.ones(len(i_energies_moy)))
         plt.errorbar(courants, energies_moy, yerr=4*erreur_test, fmt='bo', ecolor = 'black', label = 'Énergies moyennes')
-        plt.fill_between(courants, energies_moy-3*(pcov_moy[0]**0.5), energies_moy+3*(pcov_moy[0]**0.5), alpha=0.2, color="blue")
+        plt.fill_between(courants, popt_moy[0]-3*(pcov_moy[0]**0.5), popt_moy[0]+3*(pcov_moy[0]**0.5), alpha=0.2, color="blue")
         # plt.plot(courants, energies_max, 'bo')
         plt.errorbar(courants, energies_max, yerr=4*erreur_test, fmt='ro', ecolor = 'black', label = 'Énergies maximales')
-        plt.fill_between(courants, energies_max-3*(pcov_max[0]**0.5), energies_max+3*(pcov_max[0]**0.5), alpha=0.2, color="red")
+        plt.fill_between(courants, popt_max[0]-3*(pcov_max[0]**0.5), popt_max[0]+3*(pcov_max[0]**0.5), alpha=0.2, color="red")
         plt.legend()
         plt.xlabel(r"Courant [$\mu$A]", fontsize=14)
         plt.text(10, 38, r"$E_{max}$"+ f' = ({popt_max[0]:.1f} ± {(pcov_max[0]**0.5)[0]:.1f}) keV', fontsize=12)#
