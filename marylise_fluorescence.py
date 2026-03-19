@@ -137,6 +137,43 @@ for file in files:
         mu_Pb3, mu_err_Pb3, sigma_Pb3, sigma_err_Pb3, _, A = fit_peak(energies, counts_s, peak_center=12.61, window=0.5, plot=False)
         mu_Pb4, mu_err_Pb4, sigma_Pb4, sigma_err_Pb4, _, A = fit_peak(energies, counts_s, peak_center=14.76, window=0.5, plot=False)
 
+def resolution_theorique(energies):
+    return (((260**2) - (120**2) + 2440*energies)**(1/2))/1000
+
+def racine_carre(energies, A, k):
+    return ((k + (A*energies))**(1/2))
+
+
+resolutions = 2.35482*np.array([sigma_Ag1, sigma_Ag2, sigma_Cu1, sigma_Cu2, sigma_Fe1, sigma_Fe2, sigma_Pb1, sigma_Pb1, sigma_Pb3, sigma_Pb4])
+energies_pics = [22.16, 24.94, 8.05, 8.91, 6.4, 7.06, 9.18, 10.55, 12.61, 14.76]
+
+print(resolutions)
+
+# 1. On "lie" les deux listes ensemble
+couples = zip(energies_pics, resolutions)
+# 2. On trie les couples (par défaut, sorted trie selon le premier élément : l'énergie)
+couples_tries = sorted(couples)
+# 3. On "délie" les couples pour récupérer deux listes distinctes triées
+energies_pics_triees, resolutions_triees = zip(*couples_tries)
+# Optionnel : Re-convertir en array ou liste si nécessaire
+energies_pics = list(energies_pics_triees)
+resolutions = np.array(resolutions_triees)
+
+popt, pcov = curve_fit(racine_carre, energies_pics, resolutions, p0=[0.0012, 0.01]) #(2440/(1000**0.5)), (((260**2)-(120**2))/(1000**0.5))
+
+print(popt, pcov)
+i_fit = np.diag(pcov)**0.5
+
+plt.plot(energies_pics, resolutions, "ro")
+plt.plot(energies, racine_carre(energies, popt[0], popt[1]), color="red", linestyle="--", label="Fonction ajustée")
+plt.plot(energies, resolution_theorique(energies), "black", label="Résolution théorique")
+plt.fill_between(energies, racine_carre(energies, popt[0]-i_fit[0], popt[1]-i_fit[1]), racine_carre(energies, popt[0]+i_fit[0], popt[1]+i_fit[1]), alpha=0.2, color="red")
+plt.text(10, 38, r"$FWHM_{théor.}$"+ f" = {popt[0]:.2f} kV {popt[1]:.2f}", fontsize=12)#
+plt.text(30, 10, r"$FWHM_{fit}$"+ f' = {popt_moy[0]:.2f} kV +{popt_moy[1]:.2f}', fontsize=12)#
+plt.xlabel("Énergies [keV]")
+plt.ylabel("Résolution (FWHM) [keV]")
+plt.legend()
+plt.show()
 
 
 

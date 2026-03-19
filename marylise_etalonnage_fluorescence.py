@@ -4,7 +4,7 @@ import os
 import numpy as np
 from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
-
+# https://physics.nist.gov/PhysRefData/XrayMassCoef/ElemTab/z29.html
 
 df = pd.read_csv('spectres_bruts/fluorescence_csv/etalonnage_SIPIN_75s_G110.29.csv')
 Am241 = df.to_numpy().ravel()
