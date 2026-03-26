@@ -142,6 +142,10 @@ for file in files:
 
         total_counts_REF_Fe2_s = total_counts_REF_Fe2/time_Fe # iciii
         total_counts_REF_Fe1_s = total_counts_REF_Fe1/time_Fe# iciii
+
+        print("RÉSOLUTION FER")
+        print("6.4 keV", 2.35482*sigma_Fe1, 2.35482*sigma_err_Fe1)
+        print("7.06 keV", 2.35482*sigma_Fe2, 2.35482*sigma_err_Fe2)
     if element == "Pb":
         mu_Pb1, mu_err_Pb, sigma_Pb1, sigma_err_Pb1, _, A = fit_peak(energies, counts_s, peak_center=9.18, window=0.5, plot=False) 
         mu_Pb2, mu_err_Pb2, sigma_Pb2, sigma_err_Pb2, _, A = fit_peak(energies, counts_s, peak_center=10.55, window=0.5, plot=False)

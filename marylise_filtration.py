@@ -26,7 +26,7 @@ def parabole(x, a, h, k):
     return (a* ((x-h)**2)) +k
 
 
-def courant_ou_tension(param_interet="tension"):
+def courant_ou_tension(param_interet="tension", threshold=3):
     folder = f"spectres_bruts/filtration_csv/{param_interet}_variable"
     
 
@@ -61,7 +61,7 @@ def courant_ou_tension(param_interet="tension"):
         print(i_energie_moy)
         i_energies_moy.append(i_energie_moy)
 
-        energie_max = find_energie_max(energies, counts)
+        energie_max = find_energie_max(energies, counts, threshold)
         energies_max.append(energie_max)
         list_counts.append(np.sum(counts_s))
 
@@ -113,7 +113,7 @@ def courant_ou_tension(param_interet="tension"):
         plt.fill_between(x, droite_min, droite_max, alpha=0.2, color="red")
         plt.legend()
         plt.xlabel(r"Tension [kV]", fontsize=14)
-        plt.text(15, 3000, r"$E_{max}$"+ fr" = {popt[0]:.2f} ($\mu$A -  {popt[1]:.2f})$^2$ + {popt[2]:.2f}", fontsize=12)#
+        plt.text(15, 3000, fr"N = {popt[0]:.2f} (kV -  {popt[1]:.2f})$^2$ + {popt[2]:.2f}", fontsize=12)#
         plt.ylabel(r"Nombre de comptes par seconde", fontsize=14)
         plt.show()
 
@@ -157,12 +157,12 @@ def courant_ou_tension(param_interet="tension"):
         plt.fill_between(courants, droite_min, droite_max, alpha=0.2, color="red")
         plt.legend()
         plt.xlabel(r"Courant [$\mu$A]", fontsize=14)
-        plt.text(40, 5000, r"$E_{max}$"+ fr" = {popt[0]:.2f} $\mu$A {popt[1]:.2f}", fontsize=12)#
+        plt.text(40, 5000, fr"N = {popt[0]:.2f} $\mu$A {popt[1]:.2f}", fontsize=12)#
         plt.ylabel(r"Nombre de comptes par seconde", fontsize=14)
         plt.show()
 
 
 # incertitude du bruit de fond
 
-courant_ou_tension("tension")
-courant_ou_tension("courant")
+courant_ou_tension("tension", threshold=3)
+courant_ou_tension("courant", threshold=8)
