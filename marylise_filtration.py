@@ -26,10 +26,12 @@ def parabole(x, a, h, k):
     return (a* ((x-h)**2)) +k
 
 
+
 def courant_ou_tension(param_interet="tension", threshold=3):
     folder = f"spectres_bruts/filtration_csv/{param_interet}_variable"
     
-
+    spectres = []
+    noms_spectres = []
     energies_moy = []
     i_energies_moy = []
     energies_max = []
@@ -45,6 +47,9 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         index = df.index.to_numpy()
         counts = (df[df.columns[0]]).to_numpy()
         counts_s = counts/time
+
+        spectres.append(counts_s)
+        noms_spectres.append(file)
 
         energies = (0.017905141963904726*index) - 0.35239275479242
 
@@ -160,9 +165,26 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         plt.text(40, 5000, fr"N = {popt[0]:.2f} $\mu$A {popt[1]:.2f}", fontsize=12)#
         plt.ylabel(r"Nombre de comptes par seconde", fontsize=14)
         plt.show()
+    return energies, spectres, noms_spectres
 
 
 # incertitude du bruit de fond
 
-courant_ou_tension("tension", threshold=3)
-courant_ou_tension("courant", threshold=8)
+energies, spectres, noms_spectres = courant_ou_tension("tension", threshold=3)
+noms_spectres_reversed = list(reversed(noms_spectres))
+
+for i, data in enumerate(reversed(spectres)):
+    plt.plot(energies, data, label=fr"{noms_spectres_reversed[i][18:20]} kV")
+plt.legend()
+plt.xlabel("Énergie [keV]")
+plt.ylabel("Nombre de comptes par seconde")
+plt.show()
+
+energies, spectres, noms_spectres = courant_ou_tension("courant", threshold=8)
+noms_spectres_reversed = list(reversed(noms_spectres))
+for i, data in enumerate(reversed(spectres)):
+    plt.plot(energies, data, label=fr"{noms_spectres_reversed[i][23:25]} $\mu$A")
+plt.legend()
+plt.xlabel("Énergie [keV]")
+plt.ylabel("Nombre de comptes par seconde")
+plt.show()
