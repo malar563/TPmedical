@@ -6,7 +6,7 @@ from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
 # https://physics.nist.gov/PhysRefData/XrayMassCoef/ElemTab/z29.html
 
-df = pd.read_csv('spectres_bruts/fluorescence_csv/etalonnage_SIPIN_75s_G110.29.csv')
+df = pd.read_csv('Filtration X\TPmedical\etalonnage_SIPIN.csv')
 Am241 = df.to_numpy().ravel()
 print(Am241)
 
@@ -113,8 +113,8 @@ x_mid = np.mean(channels)
 y_mid = a * x_mid + b
 
 # Affichage équation sur le graphe
-plt.text(x_mid+300,
-         y_mid-3,
+plt.text(x_mid+20,
+         y_mid-0.5,
          r"$E_\gamma$"+f" = {a:.3f} C - {np.abs(b):.3f}\n$R^2$ = {r2:.6f}",
          fontsize=10,
          bbox=dict(facecolor='white', alpha=0.7))
