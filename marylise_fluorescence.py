@@ -96,10 +96,51 @@ def calcule_incertitudes_ratio(resultat, valeur1, sigma1, valeur2, sigma2):
     return sigma_resultat
 
 
-"""ANALYSE DES SPECTRES PURS"""
 
+folder = f"spectres_bruts/fluorescence_csv/alliages"
+files = os.listdir(folder)
+
+# Cu, Zn, Sn
+energies, counts_1CAD, time = pre_process(folder, "1$_SIPIN_60s_G110.29_150mua_40kV.csv")
+# Ni, Cu, Fe? : PIC DE 8.05 DU Cu MÉLANGÉ AVEC CELUI À 8.26 DU Ni
+energies, counts_25c, time = pre_process(folder, "25c_SIPIN_60s_G110.29_150mua_40kV.csv")
+# Fe, Cu, 
+energies, counts_1c, time = pre_process(folder, "1c_SIPIN_60s_G110.29_150mua_40kV.csv")
+energies, counts_cle, time = pre_process(folder, "cle_SIPIN_60s_G110.29_150mua_40kV.csv")
+
+plt.plot(energies, counts_1c, label="pièce de 1 cent")
+plt.plot(energies, counts_25c, label="pièce de 25 cents")
+plt.plot(energies, counts_1CAD, label="pièce de 1 dollar")
+# plt.plot(energies, counts_cle, label="pièce de 1 dollar")
+plt.legend()
+plt.xlabel("Énergie [keV]")
+plt.ylabel("Nombre de comptes par seconde")
+plt.show()
+
+
+"""ANALYSE DES SPECTRES PURS"""
 folder = f"spectres_bruts/fluorescence_csv/spectres_purs"
 files = os.listdir(folder)
+
+# Cu, Zn, Sn
+energies, counts_Ag, time = pre_process(folder, "Ag_SIPIN_60s_G110.29_150mua_40kV.csv")
+energies, counts_Cu, time = pre_process(folder, "Cu_SIPIN_180s_G110.29_150mua_40kV.csv")
+energies, counts_Pb, time = pre_process(folder, "Pb_SIPIN_60s_G110.29_150mua_40kV.csv")
+energies, counts_Al, time = pre_process(folder, "Al_SIPIN_180s_G110.29_150mua_40kV.csv")
+energies, counts_Fe, time = pre_process(folder, "Fe_SIPIN_380s_G110.29_150mua_40kV.csv")
+
+plt.plot(energies, counts_Ag, label="Ag")
+plt.plot(energies, counts_Pb, label="Pb")
+plt.plot(energies, counts_Cu, label="Cu")
+plt.plot(energies, counts_Al, label="Al")
+plt.plot(energies, counts_Fe, label="Fe")
+
+plt.legend()
+plt.xlabel("Énergie [keV]")
+plt.ylabel("Nombre de comptes par seconde")
+# plt.yscale("log")
+plt.show()
+
 
 for file in files:
     element = file[0:2]
@@ -142,6 +183,10 @@ for file in files:
 
         total_counts_REF_Fe2_s = total_counts_REF_Fe2/time_Fe # iciii
         total_counts_REF_Fe1_s = total_counts_REF_Fe1/time_Fe# iciii
+
+        print("RÉSOLUTION FER")
+        print("6.4 keV", 2.35482*sigma_Fe1, 2.35482*sigma_err_Fe1)
+        print("7.06 keV", 2.35482*sigma_Fe2, 2.35482*sigma_err_Fe2)
     if element == "Pb":
         mu_Pb1, mu_err_Pb, sigma_Pb1, sigma_err_Pb1, _, A = fit_peak(energies, counts_s, peak_center=9.18, window=0.5, plot=False) 
         mu_Pb2, mu_err_Pb2, sigma_Pb2, sigma_err_Pb2, _, A = fit_peak(energies, counts_s, peak_center=10.55, window=0.5, plot=False)
@@ -267,19 +312,6 @@ for file in files:
 
 
 
-# Cu, Zn, Sn
-energies, counts_1CAD = pre_process(folder, "1$_SIPIN_60s_G110.29_150mua_40kV.csv")
-# Ni, Cu, Fe? : PIC DE 8.05 DU Cu MÉLANGÉ AVEC CELUI À 8.26 DU Ni
-energies, counts_25c = pre_process(folder, "25c_SIPIN_60s_G110.29_150mua_40kV.csv")
-# Fe, Cu, 
-energies, counts_1c = pre_process(folder, "1c_SIPIN_60s_G110.29_150mua_40kV.csv")
-energies, counts_cle = pre_process(folder, "cle_SIPIN_60s_G110.29_150mua_40kV.csv")
-
-# plt.plot(energies, counts_1CAD)
-# plt.plot(energies, counts_25c)
-# plt.plot(energies, counts_1c)
-# plt.plot(energies, counts_cle)
-# plt.show()
 
 
 
