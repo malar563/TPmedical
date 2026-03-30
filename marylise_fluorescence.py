@@ -14,6 +14,7 @@ def gaussian_with_background(x, A, mu, sigma, m, c):
 def gaussian_without_background(x, A, mu, sigma):
     return A * np.exp(-(x - mu)**2 / (2 * sigma**2))
 
+
 def fit_peak(energies, counts, peak_center, window=0.5, plot=True):
     """
     energies : array numpy des énergies (E = a*canal + b)
@@ -112,9 +113,9 @@ plt.plot(energies, counts_1c, label="pièce de 1 cent")
 plt.plot(energies, counts_25c, label="pièce de 25 cents")
 plt.plot(energies, counts_1CAD, label="pièce de 1 dollar")
 # plt.plot(energies, counts_cle, label="pièce de 1 dollar")
-plt.legend()
-plt.xlabel("Énergie [keV]")
-plt.ylabel("Nombre de comptes par seconde")
+plt.legend(fontsize=14)
+plt.xlabel("Énergie [keV]", fontsize=16)
+plt.ylabel("Nombre de comptes par seconde", fontsize=16)
 plt.show()
 
 
@@ -135,9 +136,9 @@ plt.plot(energies, counts_Cu, label="Cu")
 plt.plot(energies, counts_Al, label="Al")
 plt.plot(energies, counts_Fe, label="Fe")
 
-plt.legend()
-plt.xlabel("Énergie [keV]")
-plt.ylabel("Nombre de comptes par seconde")
+plt.legend(fontsize=14)
+plt.xlabel("Énergie [keV]", fontsize=16)
+plt.ylabel("Nombre de comptes par seconde", fontsize=16)
 # plt.yscale("log")
 plt.show()
 
@@ -225,11 +226,11 @@ plt.errorbar(energies_pics, resolutions, yerr=i_resolutions, fmt='ro', ecolor = 
 plt.plot(energies, racine_carre(energies, popt[0], popt[1]), color="red", linestyle="--", label="Fonction ajustée")
 plt.plot(energies, resolution_theorique(energies), "blue", label="Résolution théorique")
 plt.fill_between(energies, racine_carre(energies, popt[0]-i_fit[0], popt[1]-i_fit[1]), racine_carre(energies, popt[0]+i_fit[0], popt[1]+i_fit[1]), alpha=0.2, color="red")
-plt.text(15, 0.25, fr"$FWHM_{{théor.}} = \frac{{\sqrt{{53200 + 2440 E}}}}{{1000}}$", fontsize=12)#
-plt.text(0, 0.45, fr"$FWHM_{{fit}} = \sqrt{{{popt[1]:.3g} + {popt[0]:.3g} E}}$", fontsize=12)#
-plt.xlabel("Énergies [keV]")
-plt.ylabel("Résolution (FWHM) [keV]")
-plt.legend()
+plt.text(15, 0.25, fr"$FWHM_{{théor.}} = \frac{{\sqrt{{53200 + 2440 E}}}}{{1000}}$", fontsize=14)#
+plt.text(0, 0.44, fr"$FWHM_{{fit}} = \sqrt{{{popt[1]:.3g} + {popt[0]:.3g} E}}$", fontsize=14)#
+plt.xlabel("Énergies [keV]", fontsize=16)
+plt.ylabel("Résolution (FWHM) [keV]", fontsize=16)
+plt.legend(fontsize=14)
 plt.show()
 
 

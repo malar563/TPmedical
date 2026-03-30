@@ -25,6 +25,25 @@ def constante(x, k):
 def parabole(x, a, h, k):
     return (a* ((x-h)**2)) +k
 
+# Calcul de RMSE
+def rmse(y, y_fit):
+    return np.sqrt(np.mean((y - y_fit)**2))
+
+def incertitude_E_moy(list_counts, energies_canaux):
+    # Moyenne pondérée = Somme(A*B)/Somme(B)
+    i_list_counts = np.sqrt(list_counts)
+    i_energies_canaux = np.diff(energies_canaux)[0]*np.ones(len(energies_canaux))
+
+    # Incertitude A*B
+    i_AB = (list_counts*energies_canaux)* np.sqrt((i_list_counts/list_counts)**2 + (i_energies_canaux/energies_canaux)**2)
+
+    # Incertitude Somme(A*B)
+    i_sommeAB = np.sum(i_AB**2)
+
+    # Incertitude Somme(B)
+    i_sommeB = np.sum(i_list_counts**2)
+
+    return np.average(energies_canaux, weights=list_counts) * np.sqrt((i_sommeAB/np.sum(list_counts*energies_canaux))**2 + (i_sommeB/np.sum(list_counts)))
 
 
 def courant_ou_tension(param_interet="tension", threshold=3):
@@ -61,7 +80,9 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         energie_moy = np.average(energies, weights=counts_s)
         energies_moy.append(energie_moy)
 
-        i_energie_moy = np.sqrt(np.sum(counts*(energies-energie_moy)**2)/((np.sum(counts))**2))
+        i_energie_moy = np.sqrt(np.sum(counts*(energies-energie_moy)**2)/((np.sum(counts))**2)) # rapport 2a j'avais ça
+        i_energie_moy = incertitude_E_moy(counts_s, energies)
+        # print(i_energie_moy)
         # i_energie_moy = np.sqrt(1/(np.sum(counts)**2))
         print(i_energie_moy)
         i_energies_moy.append(i_energie_moy)
@@ -95,11 +116,13 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         # plt.plot(courants, energies_max, 'bo')
         plt.errorbar(tensions, energies_max, yerr=4*erreur_test, fmt='ro', ecolor = 'black', label = 'Énergies maximales')
         plt.fill_between(tensions, droite_min_max, droite_max_max, alpha=0.2, color="red")
-        plt.legend()
-        plt.xlabel(r"Tension [kV]", fontsize=14)
-        plt.text(10, 38, r"$E_{max}$"+ f" = {popt_max[0]:.2f} kV {popt_max[1]:.2f}", fontsize=12)#
-        plt.text(30, 10, r"$E_{moy}$"+ f' = {popt_moy[0]:.2f} kV +{popt_moy[1]:.2f}', fontsize=12)#
-        plt.ylabel(r"Énergie [keV]", fontsize=14)
+        plt.legend(fontsize=14)
+        plt.xlabel(r"Tension [kV]", fontsize=16)
+        plt.text(10, 38, r"$E_{max}$"+ f" = {popt_max[0]:.2f} kV {popt_max[1]:.2f}", fontsize=14)#
+        plt.text(10, 34, r"$RMSE$"+ f" = {rmse(energies_max, droite(tensions, popt_max[0], popt_max[1])):.4f} keV", fontsize=14)#
+        plt.text(30, 10, r"$E_{moy}$"+ f' = {popt_moy[0]:.2f} kV +{popt_moy[1]:.2f}', fontsize=14)#
+        plt.text(30, 6, r"$RMSE$"+ f" = {rmse(energies_moy, droite(tensions, popt_moy[0], popt_moy[1])):.4f} keV", fontsize=14)#
+        plt.ylabel(r"Énergie [keV]", fontsize=16)
         plt.show()
 
 
@@ -117,9 +140,10 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         plt.errorbar(tensions, list_counts, yerr=np.sqrt(list_counts), fmt='ro', ecolor = 'black', label = 'Nombre de comptes par seconde')
         plt.fill_between(x, droite_min, droite_max, alpha=0.2, color="red")
         plt.legend()
-        plt.xlabel(r"Tension [kV]", fontsize=14)
-        plt.text(15, 3000, fr"N = {popt[0]:.2f} (kV -  {popt[1]:.2f})$^2$ + {popt[2]:.2f}", fontsize=12)#
-        plt.ylabel(r"Nombre de comptes par seconde", fontsize=14)
+        plt.xlabel(r"Tension [kV]", fontsize=16)
+        plt.text(10, 3000, fr"N = {popt[0]:.2f} (kV -  {popt[1]:.2f})$^2$ + {popt[2]:.2f}", fontsize=14)#
+        plt.text(10, 2600, r"$RMSE$"+ f" = {rmse(list_counts, parabole(tensions, popt[0], popt[1], popt[2])):.4f}", fontsize=14)# RÉSULTAT BIZARRE : À METTRE?
+        plt.ylabel(r"Nombre de comptes par seconde", fontsize=16)
         plt.show()
 
     else:
@@ -137,15 +161,17 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         erreur_test = np.array(energies_moy) * 0.05
         erreur_test = i_energies_moy + (diff_energies*np.ones(len(i_energies_moy)))
         plt.errorbar(courants, energies_moy, yerr=4*erreur_test, fmt='bo', ecolor = 'black', label = 'Énergies moyennes')
-        plt.fill_between(courants, popt_moy[0]-3*(pcov_moy[0]**0.5), popt_moy[0]+3*(pcov_moy[0]**0.5), alpha=0.2, color="blue")
+        plt.fill_between(courants, popt_moy[0]-1*(pcov_moy[0]**0.5), popt_moy[0]+1*(pcov_moy[0]**0.5), alpha=0.2, color="blue")
         # plt.plot(courants, energies_max, 'bo')
         plt.errorbar(courants, energies_max, yerr=4*erreur_test, fmt='ro', ecolor = 'black', label = 'Énergies maximales')
-        plt.fill_between(courants, popt_max[0]-3*(pcov_max[0]**0.5), popt_max[0]+3*(pcov_max[0]**0.5), alpha=0.2, color="red")
-        plt.legend()
-        plt.xlabel(r"Courant [$\mu$A]", fontsize=14)
-        plt.text(10, 38, r"$E_{max}$"+ f' = ({popt_max[0]:.1f} ± {(pcov_max[0]**0.5)[0]:.1f}) keV', fontsize=12)#
-        plt.text(10, 27, r"$E_{moy}$"+ f' = ({popt_moy[0]:.1f} ± {(pcov_moy[0]**0.5)[0]:.1f}) keV', fontsize=12)#
-        plt.ylabel(r"Énergie [keV]", fontsize=14)
+        plt.fill_between(courants, popt_max[0]-1*(pcov_max[0]**0.5), popt_max[0]+1*(pcov_max[0]**0.5), alpha=0.2, color="red")
+        plt.legend(fontsize=14)
+        plt.xlabel(r"Courant [$\mu$A]", fontsize=16)
+        plt.text(10, 38, r"$E_{max}$"+ f' = ({popt_max[0]:.1f} ± {(pcov_max[0]**0.5)[0]:.1f}) keV', fontsize=14)#
+        plt.text(10, 36, r"$RMSE$"+ f" = {rmse(energies_max, popt_max[0]*np.ones(len(energies_max))):.4f} keV", fontsize=14)#
+        plt.text(10, 28, r"$E_{moy}$"+ f' = ({popt_moy[0]:.1f} ± {(pcov_moy[0]**0.5)[0]:.1f}) keV', fontsize=14)#
+        plt.text(10, 26, r"$RMSE$"+ f" = {rmse(energies_moy, popt_moy[0]*np.ones(len(energies_moy))):.4f} keV", fontsize=14)#
+        plt.ylabel(r"Énergie [keV]", fontsize=16)
         plt.show()
 
  
@@ -160,10 +186,11 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         # plt.plot(courants, energies_max, 'bo')
         plt.errorbar(courants, list_counts, yerr=np.sqrt(list_counts), fmt='ro', ecolor = 'black', label = 'Nombre de comptes par seconde')
         plt.fill_between(courants, droite_min, droite_max, alpha=0.2, color="red")
-        plt.legend()
-        plt.xlabel(r"Courant [$\mu$A]", fontsize=14)
-        plt.text(40, 5000, fr"N = {popt[0]:.2f} $\mu$A {popt[1]:.2f}", fontsize=12)#
-        plt.ylabel(r"Nombre de comptes par seconde", fontsize=14)
+        plt.legend(fontsize=14)
+        plt.xlabel(r"Courant [$\mu$A]", fontsize=16)
+        plt.text(40, 5000, fr"N = {popt[0]:.2f} $\mu$A {popt[1]:.2f}", fontsize=14)#
+        plt.text(40, 3500, r"$RMSE$"+ f" = {rmse(list_counts, droite(courants, popt[0], popt[1])):.4f}", fontsize=14) # RÉSULTAT BIZARRE : À METTRE?
+        plt.ylabel(r"Nombre de comptes par seconde", fontsize=16)
         plt.show()
     return energies, spectres, noms_spectres
 
@@ -175,16 +202,16 @@ noms_spectres_reversed = list(reversed(noms_spectres))
 
 for i, data in enumerate(reversed(spectres)):
     plt.plot(energies, data, label=fr"{noms_spectres_reversed[i][18:20]} kV")
-plt.legend()
-plt.xlabel("Énergie [keV]")
-plt.ylabel("Nombre de comptes par seconde")
+plt.legend(fontsize=14)
+plt.xlabel("Énergie [keV]",fontsize=16)
+plt.ylabel("Nombre de comptes par seconde", fontsize=16)
 plt.show()
 
 energies, spectres, noms_spectres = courant_ou_tension("courant", threshold=8)
 noms_spectres_reversed = list(reversed(noms_spectres))
 for i, data in enumerate(reversed(spectres)):
     plt.plot(energies, data, label=fr"{noms_spectres_reversed[i][23:25]} $\mu$A")
-plt.legend()
-plt.xlabel("Énergie [keV]")
-plt.ylabel("Nombre de comptes par seconde")
+plt.legend(fontsize=14)
+plt.xlabel("Énergie [keV]", fontsize=16)
+plt.ylabel("Nombre de comptes par seconde", fontsize=16)
 plt.show()
