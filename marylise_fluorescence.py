@@ -231,6 +231,9 @@ plt.text(0, 0.44, fr"$FWHM_{{fit}} = \sqrt{{{popt[1]:.3g} + {popt[0]:.3g} E}}$",
 plt.xlabel("Énergies [keV]", fontsize=16)
 plt.ylabel("Résolution (FWHM) [keV]", fontsize=16)
 plt.legend(fontsize=14)
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
+plt.tight_layout()
 plt.show()
 
 

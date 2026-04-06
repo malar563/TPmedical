@@ -118,11 +118,14 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         plt.fill_between(tensions, droite_min_max, droite_max_max, alpha=0.2, color="red")
         plt.legend(fontsize=14)
         plt.xlabel(r"Tension [kV]", fontsize=16)
-        plt.text(10, 38, r"$E_{max}$"+ f" = {popt_max[0]:.2f} kV {popt_max[1]:.2f}", fontsize=14)#
+        plt.text(10, 38, r"$E_{max}$"+ f" = {popt_max[0]:.2f} T {popt_max[1]:.2f}", fontsize=14)#
         plt.text(10, 34, r"$RMSE$"+ f" = {rmse(energies_max, droite(tensions, popt_max[0], popt_max[1])):.4f} keV", fontsize=14)#
-        plt.text(30, 10, r"$E_{moy}$"+ f' = {popt_moy[0]:.2f} kV +{popt_moy[1]:.2f}', fontsize=14)#
+        plt.text(30, 10, r"$E_{moy}$"+ f' = {popt_moy[0]:.2f} T +{popt_moy[1]:.2f}', fontsize=14)#
         plt.text(30, 6, r"$RMSE$"+ f" = {rmse(energies_moy, droite(tensions, popt_moy[0], popt_moy[1])):.4f} keV", fontsize=14)#
         plt.ylabel(r"Énergie [keV]", fontsize=16)
+        plt.xticks(fontsize = 14)
+        plt.yticks(fontsize = 14)
+        plt.tight_layout()
         plt.show()
 
 
@@ -141,9 +144,12 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         plt.fill_between(x, droite_min, droite_max, alpha=0.2, color="red")
         plt.legend()
         plt.xlabel(r"Tension [kV]", fontsize=16)
-        plt.text(10, 3000, fr"N = {popt[0]:.2f} (kV -  {popt[1]:.2f})$^2$ + {popt[2]:.2f}", fontsize=14)#
+        plt.text(10, 3000, fr"N = {popt[0]:.2f} (T -  {popt[1]:.2f})$^2$ + {popt[2]:.2f}", fontsize=14)#
         plt.text(10, 2600, r"$RMSE$"+ f" = {rmse(list_counts, parabole(tensions, popt[0], popt[1], popt[2])):.4f}", fontsize=14)# RÉSULTAT BIZARRE : À METTRE?
         plt.ylabel(r"Nombre de comptes par seconde", fontsize=16)
+        plt.xticks(fontsize = 14)
+        plt.yticks(fontsize = 14)
+        plt.tight_layout()
         plt.show()
 
     else:
@@ -172,6 +178,9 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         plt.text(10, 28, r"$E_{moy}$"+ f' = ({popt_moy[0]:.1f} ± {(pcov_moy[0]**0.5)[0]:.1f}) keV', fontsize=14)#
         plt.text(10, 26, r"$RMSE$"+ f" = {rmse(energies_moy, popt_moy[0]*np.ones(len(energies_moy))):.4f} keV", fontsize=14)#
         plt.ylabel(r"Énergie [keV]", fontsize=16)
+        plt.xticks(fontsize = 14)
+        plt.yticks(fontsize = 14)
+        plt.tight_layout()
         plt.show()
 
  
@@ -188,9 +197,12 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         plt.fill_between(courants, droite_min, droite_max, alpha=0.2, color="red")
         plt.legend(fontsize=14)
         plt.xlabel(r"Courant [$\mu$A]", fontsize=16)
-        plt.text(40, 5000, fr"N = {popt[0]:.2f} $\mu$A {popt[1]:.2f}", fontsize=14)#
+        plt.text(40, 5000, fr"N = {popt[0]:.2f} I {popt[1]:.2f}", fontsize=14)#
         plt.text(40, 3500, r"$RMSE$"+ f" = {rmse(list_counts, droite(courants, popt[0], popt[1])):.4f}", fontsize=14) # RÉSULTAT BIZARRE : À METTRE?
         plt.ylabel(r"Nombre de comptes par seconde", fontsize=16)
+        plt.xticks(fontsize = 14)
+        plt.yticks(fontsize = 14)
+        plt.tight_layout()
         plt.show()
     return energies, spectres, noms_spectres
 
