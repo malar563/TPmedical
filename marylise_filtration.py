@@ -146,7 +146,7 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         plt.xlabel(r"Tension [kV]", fontsize=16)
         plt.text(10, 3000, fr"N = {popt[0]:.2f} (T -  {popt[1]:.2f})$^2$ + {popt[2]:.2f}", fontsize=14)#
         plt.text(10, 2600, r"$RMSE$"+ f" = {rmse(list_counts, parabole(tensions, popt[0], popt[1], popt[2])):.4f}", fontsize=14)# RÉSULTAT BIZARRE : À METTRE?
-        plt.ylabel(r"Nombre de comptes par seconde", fontsize=16)
+        plt.ylabel(r"$N$/$s$ [s$^{-1}$]", fontsize=16)
         plt.xticks(fontsize = 14)
         plt.yticks(fontsize = 14)
         plt.tight_layout()
@@ -200,9 +200,6 @@ def courant_ou_tension(param_interet="tension", threshold=3):
         plt.text(40, 5000, fr"N = {popt[0]:.2f} I {popt[1]:.2f}", fontsize=14)#
         plt.text(40, 3500, r"$RMSE$"+ f" = {rmse(list_counts, droite(courants, popt[0], popt[1])):.4f}", fontsize=14) # RÉSULTAT BIZARRE : À METTRE?
         plt.ylabel(r"Nombre de comptes par seconde", fontsize=16)
-        plt.xticks(fontsize = 14)
-        plt.yticks(fontsize = 14)
-        plt.tight_layout()
         plt.show()
     return energies, spectres, noms_spectres
 
@@ -216,7 +213,7 @@ for i, data in enumerate(reversed(spectres)):
     plt.plot(energies, data, label=fr"{noms_spectres_reversed[i][18:20]} kV")
 plt.legend(fontsize=14)
 plt.xlabel("Énergie [keV]",fontsize=16)
-plt.ylabel("Nombre de comptes par seconde", fontsize=16)
+plt.ylabel(r"$N$/$s$ [s$^{-1}$]", fontsize=16)
 plt.show()
 
 energies, spectres, noms_spectres = courant_ou_tension("courant", threshold=8)
@@ -225,5 +222,5 @@ for i, data in enumerate(reversed(spectres)):
     plt.plot(energies, data, label=fr"{noms_spectres_reversed[i][23:25]} $\mu$A")
 plt.legend(fontsize=14)
 plt.xlabel("Énergie [keV]", fontsize=16)
-plt.ylabel("Nombre de comptes par seconde", fontsize=16)
+plt.ylabel(r"$N$/$s$ [s$^{-1}$]", fontsize=16)
 plt.show()
